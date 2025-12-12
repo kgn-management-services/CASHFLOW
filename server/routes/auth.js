@@ -1,69 +1,104 @@
+// module.exports = router;
 // server/routes/auth.js
 
 const express = require("express");
 const router = express.Router();
 const jwt = require("jsonwebtoken");
 
-
 const USERS_DB = {
-  // --- Admin User ---
+  // --- System Admin (kept for compatibility) ---
   admin: {
     id: "00000000-0000-0000-0000-000000000001",
     username: "admin",
-    password: "admin", // Use strong, hashed passwords in production!
+    password: "admin@7997",
     role: "admin",
-    market: null, // Admins are not tied to a market
+    market: null,
   },
 
-  // --- Market Managers ---
-  austin_manager: {
-    id: "m001",
-    username: "austin_manager",
-    password: "password1",
-    role: "manager",
-    market: "Austin",
+  // --- ALL MARKETS (Admins) ---
+  "ampcsinc@gmail.com": {
+    id: "a001",
+    username: "ampcsinc@gmail.com",
+    password: "AmG@7721!Pc#", // Anuj Mehra (ALL MARKETS) - admin
+    role: "admin",
+    market: null,
   },
-  rgv_manager: {
+  "Waqas@ampcsinc.net": {
+    id: "a002",
+    username: "Waqas@ampcsinc.net",
+    password: "Wq@4490!As$", // Waqas Awan (ALL MARKETS) - admin
+    role: "admin",
+    market: null,
+  },
+  "BackofficeM@ampcsinc.net": {
+    id: "a003",
+    username: "BackofficeM@ampcsinc.net",
+    password: "BkM@8215!Of#", // Moin Khan (ALL MARKETS) - admin
+    role: "admin",
+    market: null,
+  },
+
+  // --- Market Managers (usernames = company email IDs) ---
+  "yasir.muhammad@ampcsinc.net": {
+    id: "m001",
+    username: "yasir.muhammad@ampcsinc.net",
+    password: "Ym@9321!Tx#A",
+    role: "manager",
+    market: "AUSTIN",
+  },
+
+  "alexistrejo@ampcsinc.net": {
     id: "m002",
-    username: "rgv_manager",
-    password: "password2",
+    username: "alexistrejo@ampcsinc.net",
+    password: "Alx@7810!Lp$",
+    role: "manager",
+    market: "AUSTIN",
+  },
+
+  "Mirsaad.iqbal@ampcsinc.net": {
+    id: "m003",
+    username: "Mirsaad.iqbal@ampcsinc.net",
+    password: "MiQ#5529@Rs!",
     role: "manager",
     market: "RGV",
   },
-  corpus_manager: {
-    id: "m003",
-    username: "corpus_manager",
-    password: "password3",
+
+  "Azam.KhanYousafzai@ampcsinc.net": {
+    id: "m004",
+    username: "Azam.KhanYousafzai@ampcsinc.net",
+    password: "AzK@8842!Yf$",
     role: "manager",
     market: "CORPUS CHRISTI",
   },
-  cali_manager: {
-    id: "m004",
-    username: "cali_manager",
-    password: "password4",
+
+  "raheman.gotori@ampcsinc.net": {
+    id: "m005",
+    username: "raheman.gotori@ampcsinc.net",
+    password: "Rg@6712!Cm#",
     role: "manager",
     market: "CALIFORNIA",
   },
-  vegas_manager: {
-    id: "m005",
-    username: "vegas_manager",
-    password: "password5",
+
+  "fayahmM@ampcsinc.net": {
+    id: "m006",
+    username: "fayahmM@ampcsinc.net",
+    password: "FyM@9034!Lv$",
     role: "manager",
     market: "LAS VEGAS",
   },
 
-  // --- New Roles with all-market access ---
+  // --- Other roles with all-market access ---
   expcomm: {
     id: "r001",
     username: "expcomm",
-    password: "pass",
+    password: "Arjun@pass@expcomm",
     role: "expense_commission_manager",
     market: null, // all markets
   },
   payrollmgr: {
     id: "r002",
     username: "payrollmgr",
-    password: "pass",
+    password: "pass@faisal",
     role: "payroll_manager",
     market: null, // all markets
   },
@@ -74,7 +109,11 @@ router.post("/login", async (req, res) => {
   try {
     const { username, password } = req.body || {};
 
-    // Find the user in our simple database
+    if (!username || !password) {
+      return res.status(400).json({ error: "Missing username or password" });
+    }
+
+    // Lookup by username (we keyed USERS_DB by the username/email)
     const dbUser = USERS_DB[username];
 
     // Check if user exists and password is correct
@@ -92,7 +131,6 @@ router.post("/login", async (req, res) => {
       });
 
       // Return the token AND the user payload
-      // The frontend will use this 'user' object to set its initial state.
       return res.json({ token, user: userPayload });
     }
 
